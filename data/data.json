@@ -1,0 +1,21 @@
+{
+  "host": "",
+  "port": 0,
+  "topic": "",
+  "commands": [{
+    "cmd": ".../chanel",
+    "function": "IR",
+    "type": "integer",
+    "args": []
+  }, {
+    "cmd": ".../volume",
+    "function": "IR",
+    "type": "bool",
+    "args": []
+  }, {
+    "cmd": ".../light",
+    "function": "IO",
+    "type": "bool",
+    "args": []
+  }]
+}
