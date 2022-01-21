@@ -16,24 +16,8 @@ void setup() {
     while(true);
   }
 
-  File file = SPIFFS.open("/data.json", "r");
- 
-  if (!file) {
-    Serial.println("Failed to open file for reading");
-    while(true);
-  }
-
-  String content = "";
-  while (file.available()){
-    content += file.read();
-  }
-
-  file.close();
-
-  root = &jsonBuffer.parseObject(content);
-
-  if( ! root->success()) {
-    Serial.println("parseObject() failed");
+  if( ! loadConfig()){
+    Serial.println("Error loading config");
     while(true);
   }
 
@@ -47,6 +31,8 @@ void setup() {
   
   server.serveStatic("/data.json", SPIFFS, "/data.json");
 
+  server.on("/save", HTTP_POST, handleSave);
+
   server.onNotFound([]() {
     server.send(404, "text/plain", "404: Not Found");
   });
@@ -57,6 +43,41 @@ void setup() {
   // root["host"]
   // root["port"]
   // root["topic"]
+}
+
+bool loadConfig(void) {
+  File file = SPIFFS.open("/data.json", "r");
+ 
+  if (!file) {
+    Serial.println("Failed to open file for reading");
+    return false;
+  }
+
+  String content = "";
+  while (file.available()){
+    content += file.read();
+  }
+
+  file.close();
+
+  root = &jsonBuffer.parseObject(content);
+
+  if( ! root->success()) {
+    Serial.println("parseObject() failed");
+    return false;
+  }
+
+  return true;
+}
+
+void handleSave() {
+  if(server.hasArg("data") && server.arg("data") != NULL){
+    root = &jsonBuffer.parseObject(server.arg("data"));
+
+    saveToFile();
+  }
+
+  server.send(204, "text/plain", "");
 }
 
 bool saveToFile() {
