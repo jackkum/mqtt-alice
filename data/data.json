@@ -1,21 +1,44 @@
 {
   "host": "",
-  "port": 0,
-  "topic": "",
+  "port": 1883,
+  "topic": "cmnd/#",
+  "init": [{
+    "function": "ir",
+    "pin": 5
+  }, {
+    "function": "output",
+    "pin": 4,
+    "default": 1
+  }, {
+    "function": "input",
+    "pin": 12,
+    "normal": 0,
+    "mqtt": "cmnd/kitchen/light/power"
+  }],
   "commands": [{
-    "cmd": ".../chanel",
-    "function": "IR",
-    "type": "integer",
-    "args": []
+    "cmd": "cmnd/main/tv/channel",
+    "function": "ir",
+    "type": "digit",
+    "channel": 1,
+    "frequency": 0
   }, {
-    "cmd": ".../volume",
-    "function": "IR",
+    "cmd": "cmnd/main/tv/volume",
+    "function": "ir",
     "type": "bool",
-    "args": []
+    "true": 551502015,
+    "false": 551534655,
+    "frequency": 32
   }, {
-    "cmd": ".../light",
-    "function": "IO",
+    "cmd": "cmnd/main/tv/power",
+    "function": "ir",
+    "type": "command",
+    "number": 551489775,
+    "frequency": 32
+  }, {
+    "cmd": "cmnd/kitchen/light/power",
+    "function": "output",
     "type": "bool",
-    "args": []
+    "pin": 4,
+    "reverse": true
   }]
 }

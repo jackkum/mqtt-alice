@@ -1,24 +1,240 @@
 <html>
 
 <head>
-    <meta http-equiv="content-type" content="text/html;charset=UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="/css/bootstrap.min.css">
-    <script src="/js/jquery.min.js"></script>
-    <script src="/js/bootstrap.min.js"></script>
-    <script src="js/angular.js"></script>
-    <script src="/js/app.js"></script>
-    <link rel="icon" type="image/png" href="favicon.png">
-    <title>MQTT Клиент</title>
+	<meta http-equiv="content-type" content="text/html;charset=UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="bootstrap.min.css">
+	<script src="jquery.min.js"></script>
+	<script src="bootstrap.min.js"></script>
+	<script src="angular.js"></script>
+	<script src="app.js"></script>
+	<link rel="icon" type="image/png" href="favicon.png">
+	<title>MQTT Клиент</title>
 </head>
 
 <body>
-    <div class="container" ng-app="singleApp" ng-controller="singleCtrl">
-        <h1>ESP8266 HTTP Server - AngularJS Singlepage Application</h1>
-        
+	<div class="container" ng-app="singleApp" ng-controller="singleCtrl">
+		<h1>MQTT Клиент</h1>
 
-        
-    </div>
+		<div ng-if="error" class="alert alert-danger" role="alert">{{error}}</div>
+
+		<div class="panel panel-default">
+			
+			<div class="panel-heading">Общие</div>
+			<div class="panel-body">
+				<div class="input-group">
+					<span class="input-group-addon">Сервер</span>
+					<input type="text" class="form-control" placeholder="Домен или IP адрес" ng-model="data.host">
+				</div>
+
+				<div class="input-group">
+					<span class="input-group-addon">Порт</span>
+					<input type="number" class="form-control" placeholder="Порт" ng-model="data.port">
+				</div>
+
+				<div class="input-group">
+					<span class="input-group-addon">Топик</span>
+					<input type="text" class="form-control" placeholder="Топик" ng-model="data.topic">
+				</div>
+			</div>
+
+			<div class="panel-heading">Инициализация</div>
+			<div class="panel-body">
+				<div ng-repeat="item in data.init">
+					<div class="row">
+
+						<div class="col-sm-1">
+							<div class="btn-group">
+								<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+									{{item.function}} <span class="caret"></span>
+								</button>
+								<ul class="dropdown-menu">
+									<li><a href="#" ng-click="item.function='ir'">ir</a></li>
+									<li><a href="#" ng-click="item.function='output'">output</a></li>
+									<li><a href="#" ng-click="item.function='input'">input</a></li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="col-sm-2">
+							<div class="input-group">
+								<span class="input-group-addon">Пин</span>
+								<input type="number" class="form-control" placeholder="Пин" ng-model="item.pin" min="0">
+							</div>
+						</div>
+
+						<div class="col-sm-2" ng-if="item.function=='output'">
+							<div class="input-group">
+								<span class="input-group-addon">Умолч.</span>
+								<input type="number" class="form-control" placeholder="По умолчанию" ng-model="item.default" min="0" max="1">
+							</div>
+						</div>
+
+						<div class="col-sm-2" ng-if="item.function=='input'">
+							<div class="input-group">
+								<span class="input-group-addon">Норма</span>
+								<input type="number" class="form-control" placeholder="Норма" ng-model="item.normal" min="0" max="1">
+							</div>
+						</div>
+
+						<div class="col-sm-4" ng-if="item.function=='input'">
+							<div class="input-group">
+								<span class="input-group-addon">Топик</span>
+								<input type="text" class="form-control" placeholder="Топик" ng-model="item.mqtt">
+							</div>
+						</div>
+
+						<div class="col-sm-1 pull-right">
+							<button type="button" class="btn btn-sm btn-danger" title="Удалить" ng-click="data.init.splice($index, 1)">
+								&#128465;
+							</button>
+						</div>
+
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-sm-11">&nbsp;</div>
+					<div class="col-sm-1 pull-right">
+						<button type="button" class="btn btn-sm btn-success" title="Добавить" ng-click="data.init.push({'function': 'ir', pin: 0})">
+							&#10133;
+						</button>
+					</div>
+				</div>
+			</div>
+
+			<div class="panel-heading">Команды</div>
+			<div class="panel-body">
+				<div ng-repeat="item in data.commands">
+					<div class="row">
+
+						<div class="col-sm-1">
+							<div class="btn-group">
+								<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+									{{item.function}} <span class="caret"></span>
+								</button>
+								<ul class="dropdown-menu">
+									<li><a href="#" ng-click="item.function='ir'">ir</a></li>
+									<li><a href="#" ng-click="item.function='output'">output</a></li>
+									<li><a href="#" ng-click="item.function='input'">input</a></li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="col-sm-3">
+							<div class="input-group">
+								<span class="input-group-addon">Топик</span>
+								<input type="text" class="form-control" placeholder="Топик" ng-model="item.cmd">
+							</div>
+						</div>
+
+						<div class="col-sm-2" ng-if="item.function=='output'">
+							<div class="input-group">
+								<span class="input-group-addon">Пин</span>
+								<input type="number" class="form-control" placeholder="Пин" ng-model="item.pin" min="0">
+							</div>
+						</div>
+
+						<div class="col-sm-2" ng-if="item.function=='output'">
+							<label>
+								<input type="checkbox" name="reverse" ng-model="item.reverse"> Реверс
+							</label>
+						</div>
+
+						<div class="col-sm-1" ng-if="item.function=='ir'">
+							<div class="btn-group">
+								<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+									{{item.type}} <span class="caret"></span>
+								</button>
+								<ul class="dropdown-menu">
+									<li><a href="#" ng-click="item.type='digit'">digit</a></li>
+									<li><a href="#" ng-click="item.type='bool'">bool</a></li>
+									<li><a href="#" ng-click="item.type='command'">command</a></li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="col-sm-2" ng-if="item.function=='ir'">
+							<div class="input-group">
+								<span class="input-group-addon">Частота</span>
+								<input type="number" class="form-control" placeholder="Частота" ng-model="item.frequency" min="0">
+							</div>
+						</div>
+
+						<div class="col-sm-2" ng-if="item.function=='ir' && item.type=='digit'">
+							<div class="input-group">
+								<span class="input-group-addon">Канал</span>
+								<input type="number" class="form-control" placeholder="Канал" ng-model="item.channel" min="0">
+							</div>
+						</div>
+
+						<div class="col-sm-2" ng-if="item.function=='ir' && item.type=='command'">
+							<div class="input-group">
+								<span class="input-group-addon">Код</span>
+								<input type="number" class="form-control" placeholder="Код" ng-model="item.number" min="0">
+							</div>
+						</div>
+
+						<div class="col-sm-2" ng-if="item.function=='ir' && item.type=='bool'">
+							<div class="input-group">
+								<span class="input-group-addon">Истина</span>
+								<input type="number" class="form-control" placeholder="Код" ng-model="item.true" min="0">
+							</div>
+						</div>
+
+						<div class="col-sm-2" ng-if="item.function=='ir' && item.type=='bool'">
+							<div class="input-group">
+								<span class="input-group-addon">Ложь</span>
+								<input type="number" class="form-control" placeholder="Код" ng-model="item.false" min="0">
+							</div>
+						</div>
+
+						<div class="col-sm-1 pull-right">
+							<button type="button" class="btn btn-sm btn-danger" title="Удалить" ng-click="data.commands.splice($index, 1)">
+								&#128465;
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-sm-11">&nbsp;</div>
+				<div class="col-sm-1 pull-right">
+					<button type="button" class="btn btn-sm btn-success" title="Добавить" ng-click="data.commands.push({'function': 'ir'})">
+						&#10133;
+					</button>
+				</div>
+			</div>
+			
+		</div>
+
+		<div class="row">
+			<div class="col-sm-10"></div>
+			<div class="col-sm-2 pull-right">
+				<button type="button" class="btn btn-success" ng-click="save()">Сохранить</button>
+			</div>
+		</div>
+		
+
+		<pre>{{data | json}}</pre>
+
+		<script type="text/ng-template" id="command.html">
+			<pre>{{item || json}}</pre>
+		</script>
+
+		<script type="text/ng-template" id="ir.html">
+			IR
+		</script>
+
+		<script type="text/ng-template" id="output.html">
+			output
+		</script>
+
+		<script type="text/ng-template" id="input.html">
+			input
+		</script>
+	</div>
 </body>
 
 </html>
